@@ -3,7 +3,11 @@ fmod RED is
 
  sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj .
  subsort Localizacion Socket < Sistema .
+
  *** Define los subtipos entre Contenidos y Nodo y Msj
+ subsort Msj Nodo < Contenidos .
+ op __ : Contenidos Contenidos -> Contenidos [ctor assoc comm] .
+  
  *** Define los subtipos entre Msj y ListaMsj
 
  op none : -> Sistema [ctor] .
