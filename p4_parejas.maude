@@ -18,9 +18,12 @@ fmod RED is
 
  *** Termina de definir constructores
 
+ op idNodo : String -> Id .
+ idNodo("a")
+
  *** Nat es un estado, en el extremo puede ser INACTIVO, ACTIVO y ESPERANDO, en el centro puede ser ACTIVO e INACTIVO
- op extremo : id Nat ListaIds String -> Nodo .
- op centro : id Tabla Nat -> Nodo .
+ op extremo : Id Nat ListaIds String -> Nodo .
+ op centro : Id Tabla Nat -> Nodo .
 endfm
 
 mod COMPORTAMIENTO is
