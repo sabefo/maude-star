@@ -17,6 +17,10 @@ fmod RED is
  op <_|_;_|_> : Nat ListaMsj ListaMsj Nat -> Socket [ctor] .
 
  *** Termina de definir constructores
+
+ *** Nat es un estado, en el extremo puede ser INACTIVO, ACTIVO y ESPERANDO, en el centro puede ser ACTIVO e INACTIVO
+ op extremo : id Nat ListaIds String -> Nodo .
+ op centro : id Tabla Nat -> Nodo .
 endfm
 
 mod COMPORTAMIENTO is
