@@ -1,0 +1,51 @@
+fmod RED is
+ pr NAT .
+
+ sorts Localizacion Sistema Contenidos Nodo Msj .
+ subsort Localizacion < Sistema .
+ *** Define los subtipos entre Contenidos y Nodo y Msj
+
+ op none : -> Sistema [ctor] .
+ op {_|_} : Nat Contenidos -> Localizacion [ctor] .
+ op __ : Sistema Sistema -> Sistema [ctor assoc comm id: none] .
+
+ *** Termina de definir constructores
+endfm
+
+mod COMPORTAMIENTO is
+ *** Importa los modulos correspondientes
+
+ *** Define el comportamiento de la red mediante reglas
+endm
+
+mod EJEMPLO is
+ *** Importa los modulos correspondientes
+
+ op init : -> Sistema .
+ *** Define un término inicial sobre el que probar las propiedades siguiendo el enunciado
+ *** red init = { 0 | ... }
+ ***            { 1 | ... }
+ ***            ...
+endm
+
+rew init .
+
+*** search init ...
+
+load model-checker
+
+mod PROPS is
+ *** Importa los modulos correspondientes
+
+ *** Define las propiedades
+endm
+
+mod TEST is
+ *** Importa los modulos correspondientes
+endm
+
+eof
+
+*** Define y comprueba las propiedades
+
+red modelCheck(init, ...) .
