@@ -1,7 +1,7 @@
 fmod RED is
  pr NAT .
 
- sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj .
+ sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj Id .
  subsort Localizacion Socket < Sistema .
 
  *** Define los subtipos entre Contenidos y Nodo y Msj
