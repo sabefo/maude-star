@@ -26,6 +26,7 @@ fmod RED is
  op _,_ : ListaMsj ListaMsj -> ListaMsj [ctor assoc] .
 
  op info : Nat Nat IdNodo -> Msj [ctor] .
+ op respuesta-info : IdNodo -> Msj [ctor] .
 
  op none : -> Sistema [ctor] .
  op {_|_} : Nat Contenidos -> Localizacion [ctor] .
