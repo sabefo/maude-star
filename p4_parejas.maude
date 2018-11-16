@@ -25,6 +25,8 @@ fmod RED is
  subsort Msj < ListaMsj .
  op _,_ : ListaMsj ListaMsj -> ListaMsj [ctor assoc] .
 
+ op info : Nat Nat IdNodo -> Msj [ctor] .
+
  op none : -> Sistema [ctor] .
  op {_|_} : Nat Contenidos -> Localizacion [ctor] .
  op __ : Sistema Sistema -> Sistema [ctor assoc comm id: none] .
