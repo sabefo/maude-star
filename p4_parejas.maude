@@ -13,6 +13,9 @@ fmod RED is
  pr NAT .
  pr TABLAHASH .
 
+ var S : Sistema .
+ var L : Localizacion .
+
  sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj Id .
  subsort Localizacion Socket < Sistema .
  
@@ -28,6 +31,9 @@ fmod RED is
  op info : Nat Nat IdNodo -> Msj [ctor] .
  op respuesta-info : IdNodo -> Msj [ctor] .
  op to_:_ : IdNodo String -> Msj [ctor] .
+ op numNodos : Sistema -> Nat .
+ eq numNodos(L S) = numNodos(S) + 1 .
+ eq numNodos(S) = 0 [owise] .
 
  op none : -> Sistema [ctor] .
  op {_|_} : Nat Contenidos -> Localizacion [ctor] .
