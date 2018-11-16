@@ -1,8 +1,21 @@
+fmod TABLAHASH is
+ pr NAT .
+ sorts IdNodo Tablahash .
+
+ op Id_ : Nat -> IdNodo [ctor] . *** Constructor de IdNodo
+ op tv : Tablahash . *** Tabla vacia
+ op [_,_] : Nat IdNodo -> Tablahash [ctor] .
+ op _ _ : Tablahash Tablahash -> tablahash [ctor id: tv] .
+
+endfm
+
 fmod RED is
  pr NAT .
+ pr TABLAHASH .
 
  sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj Id .
  subsort Localizacion Socket < Sistema .
+ 
 
  *** Define los subtipos entre Contenidos y Nodo y Msj
  subsort Msj Nodo < Contenidos .
