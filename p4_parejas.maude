@@ -22,6 +22,8 @@ fmod RED is
  op __ : Contenidos Contenidos -> Contenidos [ctor assoc comm] .
   
  *** Define los subtipos entre Msj y ListaMsj
+ subsort Msj < ListaMsj .
+ op _,_ : ListaMsj ListaMsj -> ListaMsj [ctor assoc] .
 
  op none : -> Sistema [ctor] .
  op {_|_} : Nat Contenidos -> Localizacion [ctor] .
