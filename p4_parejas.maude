@@ -4,8 +4,8 @@ fmod TABLAHASH is
 
  op Id_ : Nat -> IdNodo [ctor] . *** Constructor de IdNodo
  op tv : Tablahash . *** Tabla vacia
- op [_,_] : Nat IdNodo -> Tablahash [ctor] .
- op _ _ : Tablahash Tablahash -> tablahash [ctor id: tv] .
+ op [_,_] : IdNodo Nat -> Tablahash [ctor] .
+ op _ _ : Tablahash Tablahash -> Tablahash [ctor id: tv] .
 
 endfm
 
@@ -47,7 +47,7 @@ fmod RED is
  idNodo("a")
 
  *** Nat es un estado, en el extremo puede ser INACTIVO, ACTIVO y ESPERANDO, en el centro puede ser ACTIVO e INACTIVO
- op extremo : Id Nat ListaIds String -> Nodo .
+ op extremo : Id Nat Nat ListaIds String -> Nodo .
  op centro : Id Tabla Nat -> Nodo .
 endfm
 
@@ -57,6 +57,16 @@ endfm
 
 mod COMPORTAMIENTO is
  *** Importa los modulos correspondientes
+ pr RED .
+
+ *** queda definir estados de los mensajes 0 esperando 1 activo 2 inactivo
+ *** ----El mensaje info lo envían los extremos en estado inactivo para indicar su dirección y su
+nombre. Al enviarlo pasa al estado esperando.
+ rl[extremo-inactivo] : {N' | extremo(Id, 2, N, L, S)} => {N' | info(N, N', Id) extremo(Id, 0, N, L, S)} .
+
+ *** ----Este mensaje es recibido por el centro y se utiliza para actualizar la tabla.
+ *** ----En la misma regla el centro envía respuesta-info al extremo como respuesta.
+ rl[centro-tabla] : {N | info(N, N', Id) centro(Id, T, N'')} => {N | respuesta-info(Id) centro(Id, [Id, N] T, 1)} .
 
  *** Define el comportamiento de la red mediante reglas
 endm
