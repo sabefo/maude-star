@@ -23,6 +23,10 @@ fmod RED is
  op centro : id Tabla Nat -> Nodo .
 endfm
 
+fmod Tabla is
+
+endfm
+
 mod COMPORTAMIENTO is
  *** Importa los modulos correspondientes
 
