@@ -47,13 +47,18 @@ fmod RED is
  idNodo("a")
 
  *** Nat es un estado, en el extremo puede ser INACTIVO, ACTIVO y ESPERANDO, en el centro puede ser ACTIVO e INACTIVO
- op extremo : Id Nat ListaIds String -> Nodo .
+ op extremo : Id Nat Nat ListaIds String -> Nodo .
  op centro : Id Tabla Nat -> Nodo .
 endfm
 
 mod COMPORTAMIENTO is
  *** Importa los modulos correspondientes
+ pr RED .
 
+ *** queda definir estados de los mensajes 0 esperando 1 activo 2 inactivo
+ *** ----El mensaje info lo envían los extremos en estado inactivo para indicar su dirección y su
+nombre. Al enviarlo pasa al estado esperando.
+ rl[extremo-inactivo] : {N' | extremo(Id, 2, N, L, S)} => {N' | info(N, N', Id) extremo(Id, 0, N, L, S)} .
  *** Define el comportamiento de la red mediante reglas
 endm
 
