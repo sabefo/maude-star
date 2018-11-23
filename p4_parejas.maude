@@ -1,14 +1,39 @@
+fmod TABLAHASH is
+ pr NAT .
+ sorts IdNodo Tablahash .
+
+ op Id_ : Nat -> IdNodo [ctor] . *** Constructor de IdNodo
+ op tv : Tablahash . *** Tabla vacia
+ op [_,_] : Nat IdNodo -> Tablahash [ctor] .
+ op _ _ : Tablahash Tablahash -> tablahash [ctor id: tv] .
+
+endfm
+
 fmod RED is
  pr NAT .
+ pr TABLAHASH .
 
- sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj .
+ var S : Sistema .
+ var L : Localizacion .
+
+ sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj Id .
  subsort Localizacion Socket < Sistema .
+ 
 
  *** Define los subtipos entre Contenidos y Nodo y Msj
  subsort Msj Nodo < Contenidos .
  op __ : Contenidos Contenidos -> Contenidos [ctor assoc comm] .
   
  *** Define los subtipos entre Msj y ListaMsj
+ subsort Msj < ListaMsj .
+ op _,_ : ListaMsj ListaMsj -> ListaMsj [ctor assoc] .
+
+ op info : Nat Nat IdNodo -> Msj [ctor] .
+ op respuesta-info : IdNodo -> Msj [ctor] .
+ op to_:_ : IdNodo String -> Msj [ctor] .
+ op numNodos : Sistema -> Nat .
+ eq numNodos(L S) = numNodos(S) + 1 .
+ eq numNodos(S) = 0 [owise] .
 
  op none : -> Sistema [ctor] .
  op {_|_} : Nat Contenidos -> Localizacion [ctor] .
@@ -18,9 +43,12 @@ fmod RED is
 
  *** Termina de definir constructores
 
+ op idNodo : String -> Id .
+ idNodo("a")
+
  *** Nat es un estado, en el extremo puede ser INACTIVO, ACTIVO y ESPERANDO, en el centro puede ser ACTIVO e INACTIVO
- op extremo : id Nat ListaIds String -> Nodo .
- op centro : id Tabla Nat -> Nodo .
+ op extremo : Id Nat ListaIds String -> Nodo .
+ op centro : Id Tabla Nat -> Nodo .
 endfm
 
 fmod Tabla is
