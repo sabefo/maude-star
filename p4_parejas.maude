@@ -56,6 +56,21 @@ mod COMPORTAMIENTO is
  pr RED .
 
  *** queda definir estados de los mensajes 0 esperando 1 activo 2 inactivo
+ *** ----Cuando un mensaje va dirigido a un nodo en otra localización tenemos las siguientes opciones:
+ *** ----Los extremos mandan su mensaje al centro a través del socket correspondiente (introduciéndolo en la lista adecuada).
+ rl[mensaje-otra-loc-extremo] : { j | Msj } extremo(Id, N, N', L, S) => <i | Li ; { j | Msj } | j> .
+ 
+ *** ----El centro usa su tabla hash para enviar el mensaje a la localización correcta a través del socket correspondiente.
+ rl[mensaje-otra-loc-centro] : {j | Msj } centro(Id, [j, N'] T, N) => <i | Li ; Lj | j> .
+
+
+ *** ----Cuando tenemos un mensaje al principio de la lista del socket, entonces lo movemos a la Localizacion correspondiente.
+ rl[principio-socket] : { j | C } <i | Li ; Msj Lj | j> => { j | Msj C } <i | Li ; Lj | j> .
+
+ *** ------------------------------
+ *** rl[principio-socket] : { j | C } <i | Li ; Msj Lj | j> => { j | Msj C } <i | Li ; Lj | j> .
+ *** ------------------------------
+
  *** ----El mensaje info lo envían los extremos en estado inactivo para indicar su dirección y su
 nombre. Al enviarlo pasa al estado esperando.
  rl[extremo-inactivo] : {N' | extremo(Id, 2, N, L, S)} => {N' | info(N, N', Id) extremo(Id, 0, N, L, S)} .
@@ -63,6 +78,14 @@ nombre. Al enviarlo pasa al estado esperando.
  *** ----Este mensaje es recibido por el centro y se utiliza para actualizar la tabla.
  *** ----En la misma regla el centro envía respuesta-info al extremo como respuesta.
  rl[centro-tabla] : {N | info(N, N', Id) centro(Id, T, N'')} => {N | respuesta-info(Id) centro(Id, [Id, N] T, 1)} .
+
+ *** ----Cuando un extremo recibe el mensaje respuesta-info actualiza su estado y pasa a activo.
+ rl[extremo-respuesta-info] : extremo(Id, N, N', L, S) => extremo(Id, 1, N', L, S) .
+
+ *** ----Cuando un mensaje to_:_ llega a un nodo el mensaje se concatena a lo que ya habíamos recibido.
+ rl[to-nodo] : {N | IdNodo : S centro(Id, [IdNodo, N'] T, N) } <N | LN ; LN' | N'>
+ 	=> {N | centro(Id, [IdNodo, N'] T, N) } <N | { N | IdNodo } ; LN' | N'> .
+ rl[to-nodo] : IdNodo : S extremo(Id, N, N', L, S') => extremo(Id, N, N', L, S + S') .
 
  *** Define el comportamiento de la red mediante reglas
 endm
