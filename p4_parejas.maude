@@ -103,10 +103,10 @@ pr COMPORTAMIENTO
  op init : -> Sistema .
  *** Define un término inicial sobre el que probar las propiedades siguiendo el enunciado
  red init = { 0 | tv , 2 } *** Dentro habrá un nodo
-            { 1 | , 2 }
-            { 2 }
-            { 3 }
-            { 4 }
+            { 1 | 1 , 0, [2, 3, 4], 2, "a" }
+            { 2 | 2 , 0, [1, 3, 4], 2, "la" }
+            { 3 | 3 , 0, [1, 2, 4], 2 , "verga" }
+            { 4 | 4 , 0, [1, 2, 3], 2 , "Msj" }
             < 0 | ... ; ... | 1 >
 *** Socket que une 0 y 1. Los puntos suspensivos serán listas vacías
 endm
