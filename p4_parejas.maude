@@ -61,49 +61,54 @@ mod COMPORTAMIENTO is
  *** Estados de los mensajes 0 esperando 1 activo 2 inactivo
  *** ----Cuando un mensaje va dirigido a un nodo en otra localización tenemos las siguientes opciones:
  *** ----Los extremos mandan su mensaje al centro a través del socket correspondiente (introduciéndolo en la lista adecuada).
- rl[mensaje-otra-loc-extremo] : { j | Msj } extremo(Id, N, N', L, S) => <i | Li ; { j | Msj } | j> .
+ rl [mensaje-otra-loc-extremo] : { j | Msj } extremo(Id, N, N', L, S) => <i | Li ; { j | Msj } | j> .
 
  *** ----El centro usa su tabla hash para enviar el mensaje a la localización correcta a través del socket correspondiente.
- rl[mensaje-otra-loc-centro] : { j | Msj } centro(Id, [j, N'] T, N) => <i | Li ; { j | Msj } | j> .
+ rl [mensaje-otra-loc-centro] : { j | Msj } centro(Id, [j, N'] T, N) => <i | Li ; { j | Msj } | j> .
 
  *** ----Cuando tenemos un mensaje al principio de la lista del socket, entonces lo movemos a la Localizacion correspondiente.
- rl[principio-socket] : { j | C } <i | Li ; (Lj,Msj) | j> => { j | Msj C } <i | Li ; Lj | j> .
+ rl [principio-socket] : { j | C } <i | Li ; (Lj,Msj) | j> => { j | Msj C } <i | Li ; Lj | j> .
 
- rl[info-en-socket] : { N' | info(N, N', Id) extremo(Id, 0, N, L, S) } < N' | Li ; Lj | N >
+ rl [info-en-socket] : { N' | info(N, N', Id) extremo(Id, 0, N, L, S) } < N' | Li ; Lj | N >
       => {N' | extremo(Id, 0, N, L, S)} < N' | Li ; (info(N, N', Id), Lj) | N > .
 
- rl[respuesta-en-socket] : { N' | respuesta-info(Id) centro(Id, T, N) } < N' | Li ; Lj | N >
+ rl [respuesta-en-socket] : { N' | respuesta-info(Id) centro(Id, T, N) } < N' | Li ; Lj | N >
       => { N' | centro(Id, T, N) } < N' | Li ; (extremo(Id, 0, N, L, S), Lj) | N > .
 
  *** ----El mensaje info lo envían los extremos en estado inactivo para indicar su dirección y su nombre. Al enviarlo pasa al estado esperando.
- rl[extremo-inactivo] : {N' | extremo(Id, 2, N, L, S)} => {N' | info(N, N', Id) extremo(Id, 0, N, L, S)} .
+ rl [extremo-inactivo] : {N' | extremo(Id, 2, N, L, S)} => {N' | info(N, N', Id) extremo(Id, 0, N, L, S)} .
 
  *** ----Este mensaje es recibido por el centro y se utiliza para actualizar la tabla.
  *** ----En la misma regla el centro envía respuesta-info al extremo como respuesta.
- rl[centro-tabla] : {N | info(N, N', Id) centro(Id, T, N'')} => {N | respuesta-info(Id) centro(Id, [Id, N] T, 1)} .
+ rl [centro-tabla] : {N | info(N, N', Id) centro(Id, T, N'')} => {N | respuesta-info(Id) centro(Id, [Id, N] T, 1)} .
 
  *** ----Los nodos con amigos mandan un mensaje de la forma to_:_ a dichos amigos diciéndoles "hola". Asegúrate de que solo manden uno de estos mensajes a cada amigo (es válido borrar amigos de la lista).
- rl[nodo-extremo-amigos] : extremo(Id, N, N', Id' . L, S) => Id' : "hola" extremo(Id, N, N', L, S) .
+ rl [nodo-extremo-amigos] : extremo(Id, N, N', Id' . L, S) => Id' : "hola" extremo(Id, N, N', L, S) .
 
  *** ----Cuando un extremo recibe el mensaje respuesta-info actualiza su estado y pasa a activo.
- rl[extremo-respuesta-info] : extremo(Id, N, N', L, S) => extremo(Id, 1, N', L, S) .
+ rl [extremo-respuesta-info] : extremo(Id, N, N', L, S) => extremo(Id, 1, N', L, S) .
 
  *** ----Cuando un mensaje to_:_ llega a un nodo el mensaje se concatena a lo que ya habíamos recibido.
- rl[to-nodo] : { N | IdNodo : S centro(Id, [IdNodo, N'] T, N) } <N | LN ; LN' | N'>
+ rl [to-nodo] : { N | IdNodo : S centro(Id, [IdNodo, N'] T, N) } <N | LN ; LN' | N'>
  	=> {N | centro(Id, [IdNodo, N'] T, N) } <N | { N | IdNodo } ; LN' | N'> .
- rl[to-nodo] : IdNodo : S extremo(Id, N, N', L, S') => extremo(Id, N, N', L, S + S') .
+ rl [to-nodo] : IdNodo : S extremo(Id, N, N', L, S') => extremo(Id, N, N', L, S + S') .
 
 endm
 
 mod EJEMPLO is
  *** Importa los modulos correspondientes
+pr RED
+pr COMPORTAMIENTO
 
  op init : -> Sistema .
  *** Define un término inicial sobre el que probar las propiedades siguiendo el enunciado
- *** red init = { 0 | ... } *** Dentro habrá un nodo
- ***            { 1 | ... }
- ***            ...
- ***            < 0 | ... ; ... | 1 > *** Socket que une 0 y 1. Los puntos suspensivos serán listas vacías
+ red init = { 0 | tv , 2 } *** Dentro habrá un nodo
+            { 1 | , 2 }
+            { 2 }
+            { 3 }
+            { 4 }
+            < 0 | ... ; ... | 1 >
+*** Socket que une 0 y 1. Los puntos suspensivos serán listas vacías
 endm
 
 rew init .
