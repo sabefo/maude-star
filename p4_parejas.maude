@@ -1,23 +1,16 @@
-fmod TABLAHASH is
- pr NAT .
- sorts IdNodo Tablahash .
-
- op Id_ : Nat -> IdNodo [ctor] . *** Constructor de IdNodo
- op tv : Tablahash . *** Tabla vacia
- op [_,_] : IdNodo Nat -> Tablahash [ctor] .
- op _ _ : Tablahash Tablahash -> Tablahash [ctor id: tv] .
-
-endfm
-
 fmod RED is
  pr NAT .
- pr TABLAHASH .
+ pr STRING .
 
  var S : Sistema .
  var L : Localizacion .
 
- sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj Id ListaIds .
+ sorts Localizacion Sistema Contenidos Nodo Msj Socket ListaMsj Id ListaIds Tablahash .
  subsort Localizacion Socket < Sistema .
+
+ op tv : -> Tablahash [ctor]. *** Tabla vacia
+ op [_,_] : Id Nat -> Tablahash [ctor] .
+ op _ _ : Tablahash Tablahash -> Tablahash [ctor id: tv] .
 
  *** Definición de lista de ids de amigos
  subsort Id < ListaIds .
@@ -31,9 +24,9 @@ fmod RED is
  subsort Msj < ListaMsj .
  op _,_ : ListaMsj ListaMsj -> ListaMsj [ctor assoc] .
 
- op info : Nat Nat IdNodo -> Msj [ctor] .
- op respuesta-info : IdNodo -> Msj [ctor] .
- op to_:_ : IdNodo String -> Msj [ctor] .
+ op info : Nat Nat Id -> Msj [ctor] .
+ op respuesta-info : Id -> Msj [ctor] .
+ op to_:_ : Id String -> Msj [ctor] .
  op numNodos : Sistema -> Nat .
  eq numNodos(L S) = numNodos(S) + 1 .
  eq numNodos(S) = 0 [owise] .
@@ -46,71 +39,89 @@ fmod RED is
 
  *** Termina de definir constructores
 
- op idNodo : Nat -> Id .
- idNodo(a)
+ op id : Nat -> Id .
 
  *** Nat es un estado, en el extremo puede ser INACTIVO, ACTIVO y ESPERANDO, en el centro puede ser ACTIVO e INACTIVO
  op extremo : Id Nat Nat ListaIds String -> Nodo .
- op centro : Id Tabla Nat -> Nodo .
-endfm
-
-fmod Tabla is
-
+ op centro : Id Tablahash Nat -> Nodo .
 endfm
 
 mod COMPORTAMIENTO is
  *** Importa los modulos correspondientes
  pr RED .
+ vars i j N N' N'' : Nat .
+ vars Li Lj : ListaMsj .
+ var L L' : ListaIds .
+ var S : Sistema .
+ var St St' : String .
+ var M : Msj .
+ var C : Contenidos .
+ var Id Id' : Id .
+ var T : Tablahash .
  *** Define el comportamiento de la red mediante reglas
  *** Estados de los mensajes 0 esperando 1 activo 2 inactivo
  *** ----Cuando un mensaje va dirigido a un nodo en otra localización tenemos las siguientes opciones:
  *** ----Los extremos mandan su mensaje al centro a través del socket correspondiente (introduciéndolo en la lista adecuada).
- rl [mensaje-otra-loc-extremo] : { j | Msj } extremo(Id, N, N', L, S) => <i | Li ; { j | Msj } | j> .
+ rl [mensaje-otra-loc-extremo] : { i | C info(N', i, Id) extremo(Id, N, j, L, St)}
+                                 < i | Li ; Lj | j >
+
+  => { i | C extremo(Id, N, N', L, St)}
+                                 < i | Li ; (info(N', i, Id), Lj) | j > .
+
+ rl [mensaje-otra-loc-extremo] : (to Id : St') extremo(Id, N, N', L, St)
+  =>                             extremo(Id, N, N', L, St + St') .
+
+ crl [mensaje-otra-loc-extremo] : { i | C (to Id' : St') extremo(Id, N, N', L, St)}
+                                 < i | Li ; Lj | j >
+
+  => { i | C extremo(Id, N, N', L, St)}
+                                 < i | Li ; ((to Id' : St'), Lj) | j > if Id =/= Id' .
+
 
  *** ----El centro usa su tabla hash para enviar el mensaje a la localización correcta a través del socket correspondiente.
- rl [mensaje-otra-loc-centro] : { j | Msj } centro(Id, [j, N'] T, N) => <i | Li ; { j | Msj } | j> .
+ rl [mensaje-otra-loc-centro] : { j | C (to Id' : St) centro(Id, [Id', i] T, N)} < i | Li ; Lj | j > 
+ =>								{ j | C centro(Id, [Id', i] T, N)} < i | Li (to Id' : St) ; Lj | j > .
+ 
+ *** Lo mismo con respuestainfo-----------------------------
 
  *** ----Cuando tenemos un mensaje al principio de la lista del socket, entonces lo movemos a la Localizacion correspondiente.
- rl [principio-socket] : { j | C } <i | Li ; (Lj,Msj) | j> => { j | Msj C } <i | Li ; Lj | j> .
+ rl [principio-socket] : { j | C } < i | Li ; (Lj,M) | j > => { j | M C } < i | Li ; Lj | j > .
 
- rl [info-en-socket] : { N' | info(N, N', Id) extremo(Id, 0, N, L, S) } < N' | Li ; Lj | N >
-      => {N' | extremo(Id, 0, N, L, S)} < N' | Li ; (info(N, N', Id), Lj) | N > .
+ rl [info-en-socket] : { N' | info(N, N', Id) extremo(Id, 0, N, L, St) } < N' | Li ; Lj | N >
+      => {N' | extremo(Id, 0, N, L, St)} < N' | Li ; (info(N, N', Id), Lj) | N > .
 
  rl [respuesta-en-socket] : { N' | respuesta-info(Id) centro(Id, T, N) } < N' | Li ; Lj | N >
-      => { N' | centro(Id, T, N) } < N' | Li ; (extremo(Id, 0, N, L, S), Lj) | N > .
+      => 					{ N' | centro(Id, T, N) } < N' | Li ; respuesta-info(Id) Lj | N > .
 
  *** ----El mensaje info lo envían los extremos en estado inactivo para indicar su dirección y su nombre. Al enviarlo pasa al estado esperando.
- rl [extremo-inactivo] : {N' | extremo(Id, 2, N, L, S)} => {N' | info(N, N', Id) extremo(Id, 0, N, L, S)} .
+ rl [extremo-inactivo] : {N' | extremo(Id, 2, N, L, St)} => {N' | info(N, N', Id) extremo(Id, 0, N, L, St)} .
 
  *** ----Este mensaje es recibido por el centro y se utiliza para actualizar la tabla.
  *** ----En la misma regla el centro envía respuesta-info al extremo como respuesta.
  rl [centro-tabla] : {N | info(N, N', Id) centro(Id, T, N'')} => {N | respuesta-info(Id) centro(Id, [Id, N] T, 1)} .
 
  *** ----Los nodos con amigos mandan un mensaje de la forma to_:_ a dichos amigos diciéndoles "hola". Asegúrate de que solo manden uno de estos mensajes a cada amigo (es válido borrar amigos de la lista).
- rl [nodo-extremo-amigos] : extremo(Id, N, N', Id' . L, S) => Id' : "hola" extremo(Id, N, N', L, S) .
+ rl [nodo-extremo-amigos] : extremo(Id, N, N', (Id' . L), St) => (to Id' : "hola") extremo(Id, N, N', L, St) .
 
  *** ----Cuando un extremo recibe el mensaje respuesta-info actualiza su estado y pasa a activo.
- rl [extremo-respuesta-info] : extremo(Id, N, N', L, S) => extremo(Id, 1, N', L, S) .
+ rl [extremo-respuesta-info] : extremo(Id, N, N', L, St) => extremo(Id, 1, N', L, St) .
 
  *** ----Cuando un mensaje to_:_ llega a un nodo el mensaje se concatena a lo que ya habíamos recibido.
- rl [to-nodo] : { N | IdNodo : S centro(Id, [IdNodo, N'] T, N) } <N | LN ; LN' | N'>
- 	=> {N | centro(Id, [IdNodo, N'] T, N) } <N | { N | IdNodo } ; LN' | N'> .
- rl [to-nodo] : IdNodo : S extremo(Id, N, N', L, S') => extremo(Id, N, N', L, S + S') .
 
 endm
 
 mod EJEMPLO is
  *** Importa los modulos correspondientes
-pr RED
-pr COMPORTAMIENTO
+ pr RED .
+ pr COMPORTAMIENTO .
 
  op init : -> Sistema .
  *** Define un término inicial sobre el que probar las propiedades siguiendo el enunciado
- red init = { 0 | tv , 2 } *** Dentro habrá un nodo
+ eq init = { 0 | tv , 2 } *** Dentro habrá un nodo
             { 1 | 1 , 0, [2, 3, 4], 2, "a" }
             { 2 | 2 , 0, [1, 3, 4], 2, "la" }
-            { 3 | 3 , 0, [1, 2, 4], 2 , "verga" }
-            { 4 | 4 , 0, [1, 2, 3], 2 , "Msj" }
+            { 3 | 3 , 0, [1, 2, 4], 2 , "v" }
+            { 4 | 4 , 0, [1, 2, 3], 2 , "Maude" }
             < 0 | ... ; ... | 1 >
 *** Socket que une 0 y 1. Los puntos suspensivos serán listas vacías
 endm
