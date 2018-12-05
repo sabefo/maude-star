@@ -81,8 +81,6 @@ mod COMPORTAMIENTO is
  *** ----El centro usa su tabla hash para enviar el mensaje a la localización correcta a través del socket correspondiente.
  rl [mensaje-otra-loc-centro] : { j | C (to Id' : St) centro(Id, [Id', i] T, N)} < i | Li ; Lj | j > 
  =>								{ j | C centro(Id, [Id', i] T, N)} < i | Li (to Id' : St) ; Lj | j > .
- 
- *** Lo mismo con respuestainfo-----------------------------
 
  *** ----Cuando tenemos un mensaje al principio de la lista del socket, entonces lo movemos a la Localizacion correspondiente.
  rl [principio-socket] : { j | C } < i | Li ; (Lj,M) | j > => { j | M C } < i | Li ; Lj | j > .
