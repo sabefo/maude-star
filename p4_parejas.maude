@@ -65,18 +65,14 @@ mod COMPORTAMIENTO is
  rl [mensaje-otra-loc-extremo] : { i | C info(N', i, Id) extremo(Id, N, j, L, St)}
                                  < i | Li ; Lj | j >
 
-  => { i | C extremo(Id, N, N', L, St)}
-                                 < i | Li ; (info(N', i, Id), Lj) | j > .
+  => { i | C extremo(Id, N, N', L, St)} < i | Li ; (info(N', i, Id), Lj) | j > .
 
  rl [mensaje-otra-loc-extremo] : (to Id : St') extremo(Id, N, N', L, St)
   =>                             extremo(Id, N, N', L, St + St') .
 
- crl [mensaje-otra-loc-extremo] : { i | C (to Id' : St') extremo(Id, N, N', L, St)}
-                                 < i | Li ; Lj | j >
-
+ crl [mensaje-otra-loc-extremo] : { i | C (to Id' : St') extremo(Id, N, N', L, St)} < i | Li ; Lj | j >
   => { i | C extremo(Id, N, N', L, St)}
                                  < i | Li ; ((to Id' : St'), Lj) | j > if Id =/= Id' .
-
 
  *** ----El centro usa su tabla hash para enviar el mensaje a la localización correcta a través del socket correspondiente.
  rl [mensaje-otra-loc-centro] : { j | C (to Id' : St) centro(Id, [Id', i] T, N)} < i | Li ; Lj | j > 
@@ -103,8 +99,6 @@ mod COMPORTAMIENTO is
 
  *** ----Cuando un extremo recibe el mensaje respuesta-info actualiza su estado y pasa a activo.
  rl [extremo-respuesta-info] : extremo(Id, N, N', L, St) => extremo(Id, 1, N', L, St) .
-
- *** ----Cuando un mensaje to_:_ llega a un nodo el mensaje se concatena a lo que ya habíamos recibido.
 
 endm
 
